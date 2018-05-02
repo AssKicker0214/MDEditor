@@ -19,6 +19,18 @@ const BLOCK_REG = {
         end: /^$/
     }
 };
+let AUTO_SYNC = true;
+
+function hash(id) {
+    let previewId = id;
+    while(!document.getElementById("line-"+previewId+"-preview")){
+        previewId --;
+        if(previewId < 0){
+            break;
+        }
+    }
+    return ["line-"+id, previewId < 0? "" : "line-"+previewId+"-preview"]
+}
 
 function getBlockName(str) {
     if(BLOCK_REG.code.start.test(str)){
@@ -31,22 +43,6 @@ function getBlockName(str) {
         return 'blockquote';
     }else{
         return null;
-    }
-}
-
-function endWith(str) {
-    if(/^```[\s.]*/.test(str)){
-        return /^```\s*/
-    }else if(/^(\d+\.|\*|-) .*/.test(str)){
-        return /^$/
-    }else if(/^> .*/.test(str)){
-        return /^$/
-    }else if(/^# .*/.test(str)){
-        return /^$/
-    }else if(/\|/.test(str)){
-        return /^$/
-    }else{
-        return null
     }
 }
 
@@ -63,8 +59,7 @@ function singleLine(str) {
 class Editor{
     constructor(id) {
         this.config({});
-        this.initElem(id)
-
+        this.initElem(id);
     }
 
     config(configObj){
@@ -86,16 +81,11 @@ class Editor{
             }
         });
 
-        // document.addEventListener( 'keydown', function( event ) {
-        //     let caps = event.getModifierState( 'CapsLock' );
-        //     console.log( caps ); // true when you press the keyboard CapsLock key
-        // });
-
         this.elem.on('paste', (e)=>{
             // cancel original paste
             e.preventDefault();
             let pasting = e.originalEvent.clipboardData.getData('text');
-            let plains = pasting.split("\n").map((line)=>{
+            pasting.split("\n").map((line)=>{
                 if(line === ""){
                     return "<br />"
                 }else{
@@ -105,6 +95,13 @@ class Editor{
                 document.execCommand("insertHTML", false, text);
                 document.execCommand("insertText", false, "\n");
             });
+        });
+
+        this.elem.on('scroll', (e)=>{
+            if(this.elem.height() + this.elem.scrollTop() >= this.elem[0].scrollHeight){
+                // at the bottom
+                this.previewer.scrollToBottom()
+            }
         })
     }
 
@@ -118,12 +115,10 @@ class Editor{
 
         this.elem.on('keyup', ()=>{
             this.previewer.preview(this.getSources());
-            // console.log("keyup");
         })
     }
 
     format() {
-        console.log("formating");
         let lineClassName = this.lineClassName;
         this.elem.contents().filter(function () {
             return this.nodeType === TEXT_NODE
@@ -138,12 +133,17 @@ class Editor{
         let id = 0;
         this.elem.children().each(function () {
             let child = $(this);
-            child.prop('id', "line-"+id++);
+            id++;
+            child.prop('id', "line-"+id);
+            let previewId = hash(id)[1];
+            child.attr('ondblclick', `window.location.hash='${previewId}';`);
+            child.attr('onmousemove', AUTO_SYNC?`window.location.hash='${previewId}';`:"");
+                // .attr('onkeydown', AUTO_SYNC?`window.location.hash='${previewId}';`:"");
 
             if(!child.hasClass(lineClassName)){
-                child.addClass(lineClassName)
+                child.addClass(lineClassName);
             }
-        })
+        });
     }
 
     getSources(){
@@ -161,7 +161,6 @@ class Editor{
             };
 
             let curBlockName = blockName;
-            let single = false;
 
             if(BLOCK_REG[blockName] && BLOCK_REG[blockName].end.test(text)){
                 // 块结尾
@@ -193,27 +192,9 @@ class Editor{
             }
 
             blockName = curBlockName;
-            // console.log(text+" -> "+blockEnd);
-            // if((blockEnd && blockEnd.test(text))){
-            //     block.push(src);
-            //     srcs.push(block);
-            //     blockEnd = null;
-            //     block = [];
-            //     console.log("---end")
-            // }else if(singleLine(text)){
-            //     if(block.length>0)  srcs.push(block);
-            //     blockEnd = null;
-            //     srcs.push([src]);
-            //     block = []
-            //     console.log("single");
-            // }else{
-            //     block.push(src);
-            //     blockEnd = endWith(text) || blockEnd;
-            // }
         });
         if(block.length > 0)
             srcs.push(block);
-        console.log(srcs.length);
         return srcs;
     }
 }
@@ -253,12 +234,20 @@ class Previewer{
             block.forEach(src=>{
                 text+=src.text;
             });
-            console.log(block);
-            let html = $(marked(text)).attr('id', block[0].idInEditor+"-preview").prop("outerHTML") || "";
+            // console.log(block);
+            let html = $(marked(text) || "<p><br /></p>")
+                .attr('id', block[0].idInEditor+"-preview")
+                .attr('ondblclick', `window.location.hash='${block[0].idInEditor}'`)
+                .attr('onmousemove', AUTO_SYNC?`window.location.hash='${block[0].idInEditor}'`:"")
+                .prop("outerHTML")|| "";
 
             htmlBuffer+= html;
-            console.log(html);
+            // console.log(html);
         });
         this.elem.html(htmlBuffer);
+    }
+
+    scrollToBottom(){
+        this.elem[0].scrollTop = this.elem[0].scrollHeight - this.elem.height()
     }
 }
