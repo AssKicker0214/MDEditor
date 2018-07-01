@@ -60,6 +60,21 @@ body{
     word-break: break-all;
 }
 
+#previewer table{
+    width: 80%;
+    margin: 0 auto;
+}
+#previewer thead{
+    background-color: #2b2b2b;
+    color: floralwhite;
+}
+#previewer tbody tr:nth-child(odd){
+    background-color: #e5e5e5;
+}
+#previewer tbody tr:nth-child(even){
+    background-color: whitesmoke;
+}
+
 p code{
     padding: 2px 4px;
     font-size: 90%;

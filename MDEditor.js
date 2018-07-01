@@ -11,7 +11,7 @@ const BLOCK_REG = {
         end: /^$/
     },
     table: {
-        start: /\|/,
+        start: /\|(\w*\|)+/,
         end: /^$/
     },
     blockquote: {
