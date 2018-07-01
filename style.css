@@ -74,10 +74,13 @@ body{
 #previewer tbody tr:nth-child(even){
     background-color: whitesmoke;
 }
+#previewer td,#previewer th{
+    padding: .5em;
+}
 
 p code{
     padding: 2px 4px;
-    font-size: 90%;
+    font-size: 110%;
     color: #c7254e;
     background-color: #f9f2f4;
     border-radius: 4px;
