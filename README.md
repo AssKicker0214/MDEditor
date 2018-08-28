@@ -9,10 +9,22 @@ editor which is able to show real time preview. [hightlight.js](https://github.c
 ## Warning
 MDEditor now only supports limited syntax:
 
-- `Heading` should only starts with several hash symbols `#`
-- `table` should be wrapped with `|` in every line
-- `code block` should be wrapped with ` ``` `
-- `ordered list`
+-  `Heading` should only starts with several hash symbols `#`
+-  `table` should be wrapped with `|` in every line
+-  `code block` should be wrapped with ` ``` `
+-  `horizontal splitter` should use 3 or more `-`
+-  `list` **there should be 2 `space`s between `.` and content, eg. `1.[space][space]something`
+
+> It is a bug that list syntax requires 2 spaces, I will fix it as soon as I find out what the hell is going wrong.
+
+## Advantage
+1.  MDEditor can easily align the markdown code block and its corresponding html representation, 
+by double click the line of code or representing html element (default)
+2.  Use capital space 
+(just press `space` key after pressing `Caps` key)
+to simulate pressing `Tab` key. helpful when writing codes.
+
+More under go...
 
 ## Dependencies
 
@@ -23,7 +35,8 @@ MDEditor now only supports limited syntax:
 | highlight.js | 9.12.0 |
 
 ## Demo
-pass
+### 1. double click to do alignment
+![double-click-to-do-alignment](./docs/resources/double-click-to-do-alignment.gif)
 
 ## Usage
 ### 1. Refer to dependencies

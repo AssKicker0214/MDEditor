@@ -151,6 +151,7 @@ class Editor{
             if(self.alignmentMouseMove)
                 child.attr('onmousemove', `window.location.hash='${previewId}';`);
                 // .attr('onkeydown', AUTO_SYNC?`window.location.hash='${previewId}';`:"");
+            // Todo line highlighting
 
             if(!child.hasClass(lineClassName)){
                 child.addClass(lineClassName);
