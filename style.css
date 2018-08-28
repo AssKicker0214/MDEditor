@@ -3,16 +3,16 @@ body{
 }
 #container{
     height: calc(100vh);
+    display: flex;
 }
 
 #editor{
     position: relative;
     width: 50%;
-    display: block;
+    display: inline-block;
     background-color: black;
     color: whitesmoke;
     height: 100%;
-    float: left;
     overflow: auto;
 }
 
@@ -20,8 +20,8 @@ body{
     position: relative;
     width: 50%;
     height: 100%;
-    display: block;
-    float: left;
+    display: inline-block;
+    background-color: floralwhite;
     overflow: auto;
 }
 
@@ -31,6 +31,10 @@ body{
 }
 .editor-line:hover{
     background-color: #282828;
+}
+
+#previewer{
+    padding: 1em;
 }
 
 #previewer pre{
@@ -45,9 +49,9 @@ body{
 }
 
 #previewer blockquote{
-    border-left: #ae631f 5px solid;
-    padding: 0 5%;
-    background-color: #e7c594;
+    border-left: #66549c 5px solid;
+    padding: 1em 5%;
+    background-color: #ecedf1;
 }
 
 #previewer img{
