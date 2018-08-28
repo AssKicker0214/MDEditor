@@ -34,7 +34,7 @@ body{
 }
 
 #previewer{
-    padding: 1em;
+    padding: 0 1em;
 }
 
 #previewer pre{
@@ -80,6 +80,10 @@ body{
 }
 #previewer td,#previewer th{
     padding: .5em;
+}
+
+#toolbar{
+    width: 100%;
 }
 
 p code{

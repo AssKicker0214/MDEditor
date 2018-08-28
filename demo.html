@@ -10,6 +10,9 @@
     <script src="lib/highlightjs/highlight.pack.js"></script>
 </head>
 <body>
+<div id="toolbar">
+
+</div>
 <div id="container">
     <div id="editor" contenteditable="true">
     </div>
@@ -19,7 +22,13 @@
 
 <script src="MDEditor.js"></script>
 <script>
+    let config = {
+        lineClassName: "mdline",
+        alignmentDbclick: false,
+        alignmentMouseMove: false
+    };
     let editor = new Editor('editor');
+    editor.config(config);
     let previewer = new Previewer('previewer');
     editor.setPreviewer(previewer);
 </script>

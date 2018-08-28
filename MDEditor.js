@@ -19,7 +19,7 @@ const BLOCK_REG = {
         end: /^$/
     }
 };
-let AUTO_SYNC = true;
+// let AUTO_SYNC = true;
 
 function hash(id) {
     let previewId = id;
@@ -63,7 +63,13 @@ class Editor{
     }
 
     config(configObj){
-        this.lineClassName = configObj.lineClassName || 'editor-line'
+        this.lineClassName = configObj.lineClassName || 'editor-line';
+        this.alignmentDbclick = configObj.alignmentDbclick || true;
+        this.alignmentMouseMove = configObj.alignmentMouseMove || false;
+
+        this.configObj = configObj;
+        if(this.previewer)
+            this.previewer.config(configObj);
     }
 
     initElem(id) {
@@ -113,6 +119,8 @@ class Editor{
             return
         }
 
+        this.previewer.config(this.configObj);
+
         this.elem.on('keyup', ()=>{
             this.previewer.preview(this.getSources());
         })
@@ -130,14 +138,18 @@ class Editor{
             `<div class="${lineClassName}"></div>`
         ).end();
 
+        let self = this;
         let id = 0;
         this.elem.children().each(function () {
             let child = $(this);
             id++;
             child.prop('id', "line-"+id);
             let previewId = hash(id)[1];
-            child.attr('ondblclick', `window.location.hash='${previewId}';`);
-            child.attr('onmousemove', AUTO_SYNC?`window.location.hash='${previewId}';`:"");
+
+            if(self.alignmentDbclick)
+                child.attr('ondblclick', `window.location.hash='${previewId}';`);
+            if(self.alignmentMouseMove)
+                child.attr('onmousemove', `window.location.hash='${previewId}';`);
                 // .attr('onkeydown', AUTO_SYNC?`window.location.hash='${previewId}';`:"");
 
             if(!child.hasClass(lineClassName)){
@@ -216,6 +228,11 @@ class Previewer{
         this.elem = $("#"+id);
     }
 
+    config(configObj){
+        this.alignmentDbclick = configObj.alignmentDbclick || true;
+        this.alignmentMouseMove = configObj.alignmentMouseMove || false;
+    }
+
     setEditor(editor){
         if(this.editor !== editor){
             this.editor = editor;
@@ -236,12 +253,16 @@ class Previewer{
             });
             // console.log(block);
             let html = $(marked(text) || "<p><br /></p>")
-                .attr('id', block[0].idInEditor+"-preview")
-                .attr('ondblclick', `window.location.hash='${block[0].idInEditor}'`)
-                .attr('onmousemove', AUTO_SYNC?`window.location.hash='${block[0].idInEditor}'`:"")
-                .prop("outerHTML")|| "";
+                .attr('id', block[0].idInEditor+"-preview");
 
-            htmlBuffer+= html;
+            if(this.alignmentDbclick)
+                html.attr('ondblclick', `window.location.hash='${block[0].idInEditor}'`);
+            if(this.alignmentMouseMove)
+                html.attr('onmousemove', `window.location.hash='${block[0].idInEditor}'`);
+
+            html = html.prop("outerHTML");
+
+            htmlBuffer+= html || "";
             // console.log(html);
         });
         this.elem.html(htmlBuffer);
