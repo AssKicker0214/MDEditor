@@ -108,6 +108,12 @@ class Editor{
                 // at the bottom
                 this.previewer.scrollToBottom()
             }
+        });
+
+        this.elem.on('click keyup', (e)=>{
+            let el = window.getSelection().getRangeAt(0).commonAncestorContainer.parentNode;
+            $('.'+this.lineClassName).removeClass('current');
+            $(el).addClass('current');
         })
     }
 
@@ -151,7 +157,6 @@ class Editor{
             if(self.alignmentMouseMove)
                 child.attr('onmousemove', `window.location.hash='${previewId}';`);
                 // .attr('onkeydown', AUTO_SYNC?`window.location.hash='${previewId}';`:"");
-            // Todo line highlighting
 
             if(!child.hasClass(lineClassName)){
                 child.addClass(lineClassName);

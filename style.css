@@ -16,6 +16,10 @@ body{
     overflow: auto;
 }
 
+.current{
+    background-color: #2b2b2b;
+}
+
 #previewer{
     position: relative;
     width: 50%;
