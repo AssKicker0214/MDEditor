@@ -1,0 +1,14 @@
+ main{
+     width: 100vw;
+     height: 100vh;
+     display: flex;
+ }
+
+ main>div{
+     /* min-height:  */
+     width: 50%;
+ }
+
+ .md-index{
+     
+ }
