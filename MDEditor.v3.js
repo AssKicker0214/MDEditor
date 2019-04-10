@@ -31,8 +31,8 @@ const BLOCK_REG = {
         end: /^!\[(.*)\]\((.*)\)/
     },
     uploading: {
-        start: /^~\[(\?)\]\((===)\)/,
-        end: /^~\[(\?)\]\((===)\)/
+        start: /^~\[([^\[^\]^\n]*)\]\((\w*)\)/,
+        end: /^~\[([^\[^\]^\n]*)\]\((\d*)\)/
     }
 };
 
@@ -42,14 +42,6 @@ const INLINE_REG = {
     code: /`([^`^\n]*)`/g,
     link: /\[(.\[^\[^\]]*)\]\((.*)\)/g
 }
-
-// function parseInline(text) {
-//     return text.
-//         replace(INLINE_REG.bold, "<b>$1</b>").
-//         replace(INLINE_REG.italy, "<i>$1</i>").
-//         replace(INLINE_REG.code, "<code>$1</code>").
-//         replace(INLINE_REG.link, "<a href='$2'>$1</a>")
-// }
 
 class Wrapper {
 
@@ -210,7 +202,7 @@ class TableWrapper extends Wrapper {
                 "</tr>"
             )
         }
-        
+
         return `<table id="p-${this.idx}">
                     <thead>${rows.shift()}</thead>
                     <tbody>${rows.join('\n')}</tbody>
@@ -292,18 +284,30 @@ class ImageWrapper extends Wrapper {
     }
 }
 
-class UploadingWrapper extends Wrapper{
-    constructor(idx){
+class UploadingWrapper extends Wrapper {
+    constructor(idx, filename, size) {
         super(idx);
         this.name = "uploading";
+
+        this.filename = filename?filename:""
+        const units = ['Byte', 'KB', 'MB', 'GB'];
+        let i = 0,
+            filesize = size;
+        while(filesize > 1024){
+            i ++;
+            filesize /= 1024;
+        }
+        this.filesize = size? `${filesize.toFixed(2)} ${units[i]}`: ""
     }
 
-    appendable(){
+    appendable() {
         return false;
     }
 
-    parse(){
-        return `<div>Uploading</div>`
+    parse() {
+        return `<div class="md-pre-uploading">
+        <span>Uploading</span>
+        ${this.filename} ${this.filesize}</div>`
     }
 }
 
@@ -314,7 +318,7 @@ function dispatch(lines) {
         none: {
             name: 'none',
             closed: true,
-            close: ()=>{}
+            close: () => { }
         },
         lastWrapper: function () {
             if (this.elems.length === 0) return this.none;
@@ -401,8 +405,9 @@ function dispatch(lines) {
             let matcher = line.match(BLOCK_REG.image.start);
             page.push(new ImageWrapper(idx, matcher[1], matcher[2]));
             page.close('image');
-        }else if(BLOCK_REG.uploading.start.test(line)){
-            page.push(new UploadingWrapper());
+        } else if (BLOCK_REG.uploading.start.test(line)) {
+            let matcher = line.match(BLOCK_REG.uploading.start);
+            page.push(new UploadingWrapper(idx, matcher[1], matcher[2]));
             page.close('uploading');
         } else {  // paragraph start
             if (['paragraph', 'blockquote'].includes(page.lastWrapper().name) && !page.lastWrapper().closed) {
@@ -438,7 +443,7 @@ class Editor {
         this.root.classList.add('md-editor');
 
         this.numRoot = document.createElement('aside');
-        if(!displayLineNum) this.numRoot.style.display = "none";
+        if (!displayLineNum) this.numRoot.style.display = "none";
         this.root.appendChild(this.numRoot);
 
         this.editorRoot = document.createElement('div');
@@ -450,7 +455,7 @@ class Editor {
 
 
     bindEvents() {
-        const selectCurrentLine = (e)=>{
+        const selectCurrentLine = (e) => {
             let target = window.getSelection().getRangeAt(0).commonAncestorContainer.parentNode;
             Array.from(this.editorRoot.querySelectorAll(".md-line")).forEach((ln) => {
                 ln.classList.remove('md-focus');
@@ -467,43 +472,44 @@ class Editor {
         }
         this.editorRoot.addEventListener('keyup', render);
         this.editorRoot.addEventListener('click', selectCurrentLine);
-        this.editorRoot.addEventListener('paste', (e)=>{
+        this.editorRoot.addEventListener('paste', (e) => {
             const evt = e || window.event;
             evt.stopPropagation();
             evt.preventDefault();
             let pasting = evt.clipboardData.getData('text');
             document.execCommand('insertText', false, pasting);
         });
-        
-        this.editorRoot.addEventListener('dragover', (e)=>{
+
+        this.editorRoot.addEventListener('dragover', (e) => {
             const evt = e || window.event;
             evt.stopPropagation();
             evt.preventDefault();
         });
-        this.editorRoot.addEventListener('drop', (e)=>{
+        this.editorRoot.addEventListener('drop', (e) => {
             const evt = e || window.event;
             evt.stopPropagation();
             evt.preventDefault();
-            if(!this.uploadURL) return;
+            if (!this.uploadURL) return;
 
-            let files = Array.from(evt.dataTransfer.files).filter(f=>f.type.match(/image.*/));
-            
+            let files = Array.from(evt.dataTransfer.files).filter(f => f.type.match(/image.*/));
+
             let formData = new FormData();
             files.forEach((file, idx) => {
-                document.execCommand('insertText', false, `\n~[?](===)`);
+                console.log(file);
+                document.execCommand('insertText', false, `\n~[${file.name}](${file.size})`);
                 formData.append(idx, file);
             })
             render();
-            // fetch(this.uploadURL, {
-            //     method: 'POST',
-            //     body: formData
-            // }).then(res=>{
-            //     if(res.ok){
-            //         res.json(l=>{
-            //             console.log(l);
-            //         })
-            //     }
-            // });
+            fetch(this.uploadURL, {
+                method: 'POST',
+                body: formData
+            }).then(res=>{
+                if(res.ok){
+                    res.json(l=>{
+                        console.log(l);
+                    })
+                }
+            });
             selectCurrentLine();
 
         })
@@ -518,9 +524,9 @@ class Editor {
                 div.classList.add("md-line");
             }
 
-            if(BLOCK_REG.uploading.start.test(div.innerText)){
+            if (BLOCK_REG.uploading.start.test(div.innerText)) {
                 div.classList.add("md-editor-uploading");
-            }else{
+            } else {
                 div.classList.remove("md-editor-uploading");
             }
             textLines.push(div.innerText.replace('\n', ''));
@@ -530,17 +536,17 @@ class Editor {
         return textLines;
     }
 
-    updateNum(max){
+    updateNum(max) {
         const nums = this.numRoot.querySelectorAll(".md-editor-num").length;
-        for(let i=nums;i<max;i++){
+        for (let i = nums; i < max; i++) {
             let newNum = document.createElement('div');
             newNum.classList.add('md-editor-num');
-            newNum.innerText = (i+1)
+            newNum.innerText = (i + 1)
             newNum.id = `n-${i}`
             this.numRoot.appendChild(newNum);
         }
         let children = this.numRoot.children;
-        for(let i=nums;i>max;i--){
+        for (let i = nums; i > max; i--) {
             this.numRoot.removeChild(children[max]);
         }
     }

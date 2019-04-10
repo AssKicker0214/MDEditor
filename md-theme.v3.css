@@ -79,3 +79,10 @@
     border-left: .3em solid var(--md-pre-blockquote-bar);
     background: var(--md-pre-blockquote-background);
 }
+
+.md-pre-uploading{
+    margin: 1em auto;
+    height: 1em;
+    width: 80%;
+    position: relative;
+}
