@@ -36,6 +36,7 @@ const BLOCK_REG = {
     }
 };
 
+// inline
 const INLINE_REG = {
     bold: /\*\*([^*^\n]+)\*\*/g,
     italy: /\*([^*^\n]+)\*/g,
