@@ -454,6 +454,11 @@ class Editor {
 
     }
 
+    insertText(text){
+        this.editorRoot.focus();
+        document.execCommand("insertText", false, text);
+        this.walkThrough();
+    }
 
     bindEvents() {
         const selectCurrentLine = (e) => {

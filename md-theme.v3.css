@@ -1,3 +1,4 @@
+
 :root{
     --md-edt-background: rgb(39, 39, 46);
     --md-edt-line-hover-background: #383844;
@@ -72,6 +73,7 @@
     margin: 1em 5%;
     padding: 1em;
     border-radius: .2em;
+    font-family: 'Consolas', 'Monaco', 'Bitstream Vera Sans Mono', monospace;
 }
 
 .md-pre-blockquote{
