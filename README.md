@@ -1,3 +1,5 @@
+**This README is out of date**
+
 # MDEditor
 Markdown Editor, developed with pure HTML5. Support real time preview and code hightlighting. This repo is inspired by 
 [marked](https://github.com/markedjs/marked), and is actually use it to render the markdown codes to html.
