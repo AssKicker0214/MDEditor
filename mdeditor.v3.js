@@ -61,11 +61,7 @@ class Wrapper {
     }
 
     parseInlineElems(content) {
-        return content.
-            replace(INLINE_REG.bold, "<b>$1</b>").
-            replace(INLINE_REG.italy, "<i>$1</i>").
-            replace(INLINE_REG.code, "<code>$1</code>").
-            replace(INLINE_REG.link, "<a href='$2'>$1</a>")
+        return content.replace(INLINE_REG.bold, "<b>$1</b>").replace(INLINE_REG.italy, "<i>$1</i>").replace(INLINE_REG.code, "<code>$1</code>").replace(INLINE_REG.link, "<a href='$2'>$1</a>")
     }
 }
 
@@ -160,10 +156,7 @@ class TableWrapper extends Wrapper {
         if (line[0] === '|') line = line.substring(1);
         if (line[line.length - 1] === '|') line = line.substring(0, line.length - 1);
         let cells = this.fit(
-            line.
-                trim().
-                split("|").
-                map(col => col.trim())
+            line.trim().split("|").map(col => col.trim())
         );
 
         if (this.aligns === null && cells.every(c => /[\-:]{3,}/.test(c))) {
@@ -290,15 +283,15 @@ class UploadingWrapper extends Wrapper {
         super(idx);
         this.name = "uploading";
 
-        this.filename = filename?filename:""
+        this.filename = filename ? filename : ""
         const units = ['Byte', 'KB', 'MB', 'GB'];
         let i = 0,
             filesize = size;
-        while(filesize > 1024){
-            i ++;
+        while (filesize > 1024) {
+            i++;
             filesize /= 1024;
         }
-        this.filesize = size? `${filesize.toFixed(2)} ${units[i]}`: ""
+        this.filesize = size ? `${filesize.toFixed(2)} ${units[i]}` : ""
     }
 
     appendable() {
@@ -319,7 +312,8 @@ function dispatch(lines) {
         none: {
             name: 'none',
             closed: true,
-            close: () => { }
+            close: () => {
+            }
         },
         lastWrapper: function () {
             if (this.elems.length === 0) return this.none;
@@ -358,8 +352,7 @@ function dispatch(lines) {
             page.lastWrapper().closed === false) {
             page.lastWrapper().appendRaw(line);
 
-        }
-        else if (BLOCK_REG.list.start.test(line)) {
+        } else if (BLOCK_REG.list.start.test(line)) {
             // list block
             if (page.lastWrapper().name === 'list' && !page.lastWrapper().closed) {
                 page.lastWrapper().appendRaw(line);
@@ -454,30 +447,32 @@ class Editor {
 
     }
 
-    insertText(text){
+    insertText(text) {
         this.editorRoot.focus();
         document.execCommand("insertText", false, text);
-        this.walkThrough();
+        this.render();
     }
 
     bindEvents() {
-        const selectCurrentLine = (e) => {
+        const __selectCurrentLine = (e) => {
+            // Deprecated
             let target = window.getSelection().getRangeAt(0).commonAncestorContainer.parentNode;
             Array.from(this.editorRoot.querySelectorAll(".md-line")).forEach((ln) => {
                 ln.classList.remove('md-focus');
             });
             target.classList.add('md-focus');
-        }
-        const render = (e) => {
+        };
+        const __render = (e) => {
+            // Deprecated
             let lines = this.walkThrough();
             if (this.previewerEl) {
                 let renderedHTML = dispatch(lines);
                 this.previewerEl.innerHTML = renderedHTML;
             }
             selectCurrentLine();
-        }
-        this.editorRoot.addEventListener('keyup', render);
-        this.editorRoot.addEventListener('click', selectCurrentLine);
+        };
+        this.editorRoot.addEventListener('keyup', () => this.render());
+        this.editorRoot.addEventListener('click', ()=>this.selectCurrentLine());
         this.editorRoot.addEventListener('paste', (e) => {
             const evt = e || window.event;
             evt.stopPropagation();
@@ -504,14 +499,14 @@ class Editor {
                 console.log(file);
                 document.execCommand('insertText', false, `\n~[${file.name}](${file.size})`);
                 formData.append(idx, file);
-            })
-            render();
+            });
+            this.render();
             fetch(this.uploadURL, {
                 method: 'POST',
                 body: formData
-            }).then(res=>{
-                if(res.ok){
-                    res.json(l=>{
+            }).then(res => {
+                if (res.ok) {
+                    res.json(l => {
                         console.log(l);
                     })
                 }
@@ -519,6 +514,22 @@ class Editor {
             selectCurrentLine();
 
         })
+    }
+
+    render() {
+        let lines = this.walkThrough();
+        if (this.previewerEl) {
+            this.previewerEl.innerHTML = dispatch(lines);
+        }
+        this.selectCurrentLine();
+    }
+
+    selectCurrentLine() {
+        let target = window.getSelection().getRangeAt(0).commonAncestorContainer.parentNode;
+        Array.from(this.editorRoot.querySelectorAll(".md-line")).forEach((ln) => {
+            ln.classList.remove('md-focus');
+        });
+        target.classList.add('md-focus');
     }
 
     walkThrough() {
