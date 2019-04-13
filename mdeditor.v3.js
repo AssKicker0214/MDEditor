@@ -131,7 +131,7 @@ class ListWrapper extends Wrapper {
     }
 
     parse() {
-        let lis = this.items.map(i => `<li>${i}</li>`).join('\n');
+        let lis = this.items.map(i => `<li>${super.parseInlineElems(i)}</li>`).join('\n');
         return this.ordered ? `<ol id=p-"${this.idx}">${lis}</ol>` : `<ul id="p-${this.idx}">${lis}</ul>`
     }
 }
@@ -151,7 +151,6 @@ class TableWrapper extends Wrapper {
     }
 
     appendRaw(raw) {
-        console.log(raw);
         let line = raw.trim();
         if (line[0] === '|') line = line.substring(1);
         if (line[line.length - 1] === '|') line = line.substring(0, line.length - 1);
@@ -188,11 +187,11 @@ class TableWrapper extends Wrapper {
 
     parse() {
         let rows = [];
-        rows.push("<tr>\n" + this.rows[0].map(cell => `<th>${cell}</th>`).join('\n') + "</tr>");
+        rows.push("<tr>\n" + this.rows[0].map(cell => `<th>${super.parseInlineElems(cell)}</th>`).join('\n') + "</tr>");
         for (let i = 1; i < this.rows.length; i++) {
             rows.push(
                 "<tr>\n" +
-                this.rows[i].map(cell => `<td>${cell}</td>`).join('\n') +
+                this.rows[i].map(cell => `<td>${super.parseInlineElems(cell)}</td>`).join('\n') +
                 "</tr>"
             )
         }
@@ -223,7 +222,8 @@ class BlockquoteWrapper extends Wrapper {
     }
 
     parse() {
-        return `<blockquote class="md-pre-blockquote" id="${this.idx}">${this.buff.join('<br />').trim()}</blockquote>`
+        let content = this.buff.map(p => super.parseInlineElems(p)).join('<br />').trim();
+        return `<blockquote class="md-pre-blockquote" id="${this.idx}">${content}</blockquote>`
     }
 
 }
@@ -241,7 +241,7 @@ class HeadingWrapper extends Wrapper {
     }
 
     parse() {
-        return `<h${this.level} class="md-pre-heading" id="p-${this.idx}">${this.text}</h${this.level}>`
+        return `<h${this.level} class="md-pre-heading" id="p-${this.idx}">${super.parseInlineElems(this.text)}</h${this.level}>`
     }
 }
 
