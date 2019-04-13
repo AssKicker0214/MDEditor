@@ -27,8 +27,8 @@ const BLOCK_REG = {
         end: /^(-){3,}$/
     },
     image: {
-        start: /^!\[(.*)\]\((.*)\)/,
-        end: /^!\[(.*)\]\((.*)\)/
+        start: /^!\[(.*)]\((.*)\)(?:x(\d+)%)?/,
+        end: /^!\[(.*)]\((.*)\)(?:x(\d+)%)?/
     },
     uploading: {
         start: /^~\[([^\[^\]^\n]*)\]\((\w*)\)/,
@@ -262,11 +262,12 @@ class SplitterWrapper extends Wrapper {
 }
 
 class ImageWrapper extends Wrapper {
-    constructor(idx, alt, src) {
+    constructor(idx, alt, src, resize) {
         super(idx);
         this.name = "image";
         this.alt = alt;
         this.src = src;
+        this.resize = parseInt(resize) || 90;
     }
 
     appendable() {
@@ -274,7 +275,10 @@ class ImageWrapper extends Wrapper {
     }
 
     parse() {
-        return `<img id="p-${this.idx}" alt="${this.alt}" src="${this.src}">`
+        return `<img id="p-${this.idx}" 
+style="width: ${this.resize}%;margin: 5px ${(100 - this.resize) / 2}%" 
+class="md-pre-image" alt="${this.alt}" 
+    src="${this.src}">`
     }
 }
 
@@ -374,7 +378,7 @@ function dispatch(lines) {
             page.close('any');
         } else if (BLOCK_REG.blockquote.start.test(line)) {
             // blockquote
-            if (page.lastWrapper().name = 'blockquote' && !page.lastWrapper().closed) {
+            if (page.lastWrapper().name === 'blockquote' && !page.lastWrapper().closed) {
                 page.lastWrapper().appendRaw(line);
             } else {
                 page.push(new BlockquoteWrapper(idx, line))
@@ -397,7 +401,7 @@ function dispatch(lines) {
         } else if (BLOCK_REG.image.start.test(line)) {
             // image
             let matcher = line.match(BLOCK_REG.image.start);
-            page.push(new ImageWrapper(idx, matcher[1], matcher[2]));
+            page.push(new ImageWrapper(idx, matcher[1], matcher[2], matcher[3]));
             page.close('image');
         } else if (BLOCK_REG.uploading.start.test(line)) {
             let matcher = line.match(BLOCK_REG.uploading.start);
@@ -472,7 +476,7 @@ class Editor {
             selectCurrentLine();
         };
         this.editorRoot.addEventListener('keyup', () => this.render());
-        this.editorRoot.addEventListener('click', ()=>this.selectCurrentLine());
+        this.editorRoot.addEventListener('click', () => this.selectCurrentLine());
         this.editorRoot.addEventListener('paste', (e) => {
             const evt = e || window.event;
             evt.stopPropagation();
@@ -480,7 +484,6 @@ class Editor {
             let pasting = evt.clipboardData.getData('text');
             document.execCommand('insertText', false, pasting);
         });
-
         this.editorRoot.addEventListener('dragover', (e) => {
             const evt = e || window.event;
             evt.stopPropagation();
@@ -496,9 +499,7 @@ class Editor {
 
             let formData = new FormData();
             files.forEach((file, idx) => {
-                console.log(file);
-                document.execCommand('insertText', false, `\n~[${file.name}](${file.size})`);
-                formData.append(idx, file);
+                formData.append(idx + '', file);
             });
             this.render();
             fetch(this.uploadURL, {
@@ -506,12 +507,22 @@ class Editor {
                 body: formData
             }).then(res => {
                 if (res.ok) {
-                    res.json(l => {
-                        console.log(l);
+                    res.json().then(j => {
+                        let urls = j['urls'];
+                        for (let i = 0; i < urls.length; i++) {
+                            let url = urls[i];
+                            if (url === false) continue;
+                            document.execCommand(
+                                'insertText',
+                                false,
+                                `\n![${files[i].name}](${url})`
+                            );
+                        }
+                        this.render();
                     })
                 }
             });
-            selectCurrentLine();
+            this.selectCurrentLine();
 
         })
     }
