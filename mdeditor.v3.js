@@ -196,7 +196,7 @@ class TableWrapper extends Wrapper {
             )
         }
 
-        return `<table id="p-${this.idx}">
+        return `<table id="p-${this.idx}" class="md-pre-table">
                     <thead>${rows.shift()}</thead>
                     <tbody>${rows.join('\n')}</tbody>
                 </table>`
@@ -414,8 +414,7 @@ function dispatch(lines) {
                 page.push(new ParagraphWrapper(idx, line));
             }
         }
-    })
-    // console.log(page.elems.map(e => `${e.name}: ${e.closed}`))
+    });
     return page.parseAll();
 
 }
