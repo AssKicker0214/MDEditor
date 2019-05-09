@@ -1,3 +1,121 @@
+:root{
+    --md-edt-background: rgb(39, 39, 46);
+    --md-edt-line-hover-background: #383844;
+    --md-edt-line-border-color: #383535;
+    --md-edt-border-thickness: 2px;
+
+    --md-pre-blockquote-bar: #6a6a8c;
+    --md-pre-blockquote-background: #eae8e8;
+}
+
+.md-editor{
+    display: flex;
+}
+.md-editor>div{
+    flex-grow: 1;
+    outline: none;
+}
+.md-editor>aside{
+    display: flex;
+    flex-direction: column;
+    border-right: solid 1px gray;
+}
+.md-editor-num{
+    border-top: solid var(--md-edt-border-thickness) transparent;
+    border-bottom: solid var(--md-edt-border-thickness) transparent;
+    /* border-right: solid 1px gray; */
+    width: 2em;
+    text-align: right;
+    padding: 0 5px;
+    background-color: var(--md-edt-background);
+    color: gray;
+}
+
+.md-editor-uploading.md-line{
+    background: blue;
+}
+
+.md-line{
+    transition: .2s;
+    display: flex;
+    /* flex-direction: row-reverse; */
+    /* justify-content: flex-end; */
+    padding: 0 10px;
+    border-top: solid var(--md-edt-border-thickness) var(--md-edt-background);
+    border-bottom: solid var(--md-edt-border-thickness) var(--md-edt-background);
+    background-color: var(--md-edt-background);
+    color: whitesmoke;
+}
+
+.md-line.md-focus{
+    /* font-size: 120%; */
+    border-top-color: var(--md-edt-line-border-color);
+    border-bottom-color: var(--md-edt-line-border-color);
+}
+
+.md-line:hover{
+    background-color: var(--md-edt-line-hover-background);
+}
+
+
+.md-index{
+
+}
+
+/* preview */
+.md-preview-paragraph{
+    text-indent: 2em;
+}
+.md-pre-codeblock{
+    background: black;
+    color: whitesmoke;
+    margin: 1em 5%;
+    padding: 1em;
+    border-radius: .2em;
+    font-family: 'Consolas', 'Monaco', 'Bitstream Vera Sans Mono', monospace;
+}
+
+.md-pre-blockquote{
+    padding: .5em 2em;
+    border-left: .3em solid var(--md-pre-blockquote-bar);
+    background: var(--md-pre-blockquote-background);
+}
+
+.md-pre-uploading{
+    margin: 1em auto;
+    height: 1em;
+    width: 80%;
+    position: relative;
+}
+
+.md-pre-image{
+    width: 90%;
+    margin: 5px 5%;
+}
+
+.md-pre-table{
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+.md-pre-table>thead>tr{
+    border-bottom: solid 2px grey;
+    font-size: 1.1em;
+}
+.md-pre-table>tbody>tr{
+    border-bottom: solid 1px grey;
+    font-size: 1em;
+}
+.md-pre-table>tbody>tr:hover{
+
+}
+.md-pre-table>tbody>tr>td{
+    padding: .5em 1em;
+}
+.md-pre-table>tbody>tr:nth-child(odd){
+    background-color: #fafafa;
+}
+.md-pre-table>tbody>tr:nth-child(even){
+    background-color: #E0E0E0;
 
 :root{
     --md-edt-background: rgb(39, 39, 46);
