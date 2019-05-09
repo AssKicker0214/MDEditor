@@ -93,3 +93,28 @@
     width: 90%;
     margin: 5px 5%;
 }
+
+.md-pre-table{
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+.md-pre-table>thead>tr{
+    border-bottom: solid 2px grey;
+    font-size: 1.1em;
+}
+.md-pre-table>tbody>tr{
+    border-bottom: solid 1px grey;
+    font-size: 1em;
+}
+.md-pre-table>tbody>tr:hover{
+
+}
+.md-pre-table>tbody>tr>td{
+    padding: .5em 1em;
+}
+.md-pre-table>tbody>tr:nth-child(odd){
+    background-color: #fafafa;
+}
+.md-pre-table>tbody>tr:nth-child(even){
+    background-color: #E0E0E0;
+}
